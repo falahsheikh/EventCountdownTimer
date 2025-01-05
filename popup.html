@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 400px;
+      padding: 15px;
+      font-family: Arial, sans-serif;
+    }
+    .event-list {
+      margin-bottom: 20px;
+    }
+    .event-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      margin-bottom: 5px;
+      background: #f9f7f2;
+      border-radius: 4px;
+    }
+    .event-content {
+      flex-grow: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-right: 10px;
+    }
+    .countdown {
+      background: #ecf1f4;
+      color: #003451;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+    .past {
+      color: #750003;
+      background: #e7a7a8;
+    }
+    .add-event {
+      margin-top: 15px;
+      padding: 10px;
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+    input, button {
+      margin: 5px 0;
+      padding: 5px;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+    }
+    .edit-btn {
+      background: #2196F3;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .delete-btn {
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .add-btn {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .edit-form {
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+    .edit-form input {
+      width: 100%;
+      margin: 5px 0;
+    }
+    .edit-form-buttons {
+      display: flex;
+      gap: 5px;
+      justify-content: flex-end;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    h2 {
+      color: #333;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Upcoming Events</h2>
+  <div id="upcoming-events" class="event-list"></div>
+  
+  <h2>Past Events</h2>
+  <div id="past-events" class="event-list"></div>
+  
+  <div class="add-event">
+    <h3>Add New Event</h3>
+    <input type="text" id="event-name" placeholder="Event Name">
+    <input type="datetime-local" id="event-date">
+    <button id="add-event" class="add-btn">Add Event</button>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
