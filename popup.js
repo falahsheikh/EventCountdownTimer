@@ -101,7 +101,6 @@ function createEventElement(event) {
   
   return div;
 }
-
 function editEvent(event, eventElement) {
   // Remove existing edit form if any
   const existingForm = document.querySelector('.edit-form');
