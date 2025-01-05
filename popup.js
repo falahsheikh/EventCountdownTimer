@@ -178,6 +178,7 @@ function updateEvent(eventId, newName, newDatetime) {
       return event;
     });
     
+    
     chrome.storage.local.set({ events: updatedEvents }, loadEvents);
   });
 }
