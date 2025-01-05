@@ -83,7 +83,7 @@ function createEventElement(event) {
   
   const notesButton = document.createElement('button');
   notesButton.textContent = 'View/Edit Notes';
-  notesButton.className = 'edit-btn';
+  notesButton.className = 'notes-btn';
   notesButton.onclick = () => toggleNotes(event, div);
   
   const editButton = document.createElement('button');
@@ -134,7 +134,7 @@ function toggleNotes(event, eventElement) {
   buttonsDiv.className = 'edit-form-buttons';
   
   const saveButton = document.createElement('button');
-  saveButton.textContent = 'Save Notes';
+  saveButton.textContent = 'Save';
   saveButton.className = 'edit-btn';
   saveButton.onclick = () => {
     updateEventNotes(event.id, notesInput.value);
