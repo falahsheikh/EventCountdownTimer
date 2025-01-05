@@ -81,12 +81,12 @@ function createEventElement(event) {
   buttonsDiv.className = 'action-buttons';
   
   const editButton = document.createElement('button');
-  editButton.textContent = '✏️ Edit';
+  editButton.textContent = 'Edit';
   editButton.className = 'edit-btn';
   editButton.onclick = () => editEvent(event, div);
   
   const deleteButton = document.createElement('button');
-  deleteButton.textContent = '🗑️ Delete';
+  deleteButton.textContent = 'Delete';
   deleteButton.className = 'delete-btn';
   deleteButton.onclick = () => removeEvent(event);
   
