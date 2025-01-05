@@ -30,8 +30,8 @@
     .countdown {
       background: #ecf1f4;
       color: #003451;
-      padding: 4px 8px;
-      border-radius: 3px;
+      padding: 6px 8px;
+      border-radius: 4px;
       font-family: monospace;
     }
     .past {
@@ -87,8 +87,9 @@
     }
     .edit-form input {
       width: 100%;
-      margin: 5px 0;
+      margin: 5px;
       box-sizing: border-box;
+      padding: 10px; 
     }
     .edit-form-buttons {
       display: flex;
@@ -102,21 +103,29 @@
       color: #333;
       margin-top: 20px;
     }
+    input[type="text"], input[type="datetime-local"] {
+      width: 100%;               /* Make both inputs take up full width */
+      padding: 10px;             /* Ensure both inputs have the same padding */
+      font-size: 12px;           /* Set a consistent font size */
+      box-sizing: border-box;    /* Include padding and border in total width and height */
+    }
+
   </style>
 </head>
 <body>
-  <h2>Upcoming Events</h2>
-  <div id="upcoming-events" class="event-list"></div>
-  
-  <h2>Past Events</h2>
-  <div id="past-events" class="event-list"></div>
-  
   <div class="add-event">
     <h3>Add New Event</h3>
     <input type="text" id="event-name" placeholder="Event Name">
     <input type="datetime-local" id="event-date">
     <button id="add-event" class="add-btn">Add Event</button>
   </div>
+  
+  <h2>Upcoming Events</h2>
+  <div id="upcoming-events" class="event-list"></div>
+  
+  <h2>Past Events</h2>
+  <div id="past-events" class="event-list"></div>
+  
   
   <script src="popup.js"></script>
 </body>
