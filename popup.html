@@ -75,9 +75,16 @@
       background: #4CAF50;
       color: white;
       border: none;
-      padding: 8px 15px;
+      padding: 8px; /* Adjust padding to match search bar */
+      font-size: 14px;
       border-radius: 4px;
       cursor: pointer;
+      white-space: nowrap;
+      height: 100%; /* Ensures consistency with input */
+      box-sizing: border-box;
+      display: flex; /* Align text inside the button */
+      align-items: center;
+      justify-content: center;
     }
     .edit-form {
       background: #fff;
@@ -124,6 +131,40 @@
       min-height: 60px;
       resize: vertical;
     }
+    .search-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .search-container input {
+      flex-grow: 1;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .controls-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 15px;
+    }
+    .search-container input {
+      padding: 8px; /* Match button padding */
+      font-size: 14px; /* Match button font size */
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    #search-events {
+      margin-top: 8px; /* Adjust the value as needed */
+    }
+
+
+
+    
 
   </style>
 </head>
@@ -135,7 +176,10 @@
     <div class="form-group">
       <textarea id="event-notes" class="form-control" placeholder="Add notes or additional information (optional)"></textarea>
     </div>
-    <button id="add-event" class="add-btn">Add Event</button>
+    <div class="controls-container">
+      <button id="add-event" class="add-btn">Add Event</button>
+      <input type="text" id="search-events" placeholder="Search events..." class="form-control">
+    </div>
   </div>
 
   <h2>Upcoming Events</h2>

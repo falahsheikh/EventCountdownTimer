@@ -6,20 +6,48 @@ document.addEventListener('DOMContentLoaded', function() {
   // Update countdowns every second
   setInterval(updateAllCountdowns, 1000);
 });
+document.addEventListener('DOMContentLoaded', function() {
+  loadEvents();
+  
+  document.getElementById('add-event').addEventListener('click', addNewEvent);
+  
+  // Add search functionality
+  document.getElementById('search-events').addEventListener('input', function(e) {
+    searchEvents(e.target.value);
+  });
+  
+  // Update countdowns every second
+  setInterval(updateAllCountdowns, 1000);
+});
+
+// Add new search function
+function searchEvents(searchTerm) {
+  chrome.storage.local.get(['events'], function(result) {
+    const events = result.events || [];
+    const filteredEvents = events.filter(event => {
+      const searchString = searchTerm.toLowerCase();
+      return event.name.toLowerCase().includes(searchString) || 
+             (event.notes && event.notes.toLowerCase().includes(searchString));
+    });
+    displayEvents(filteredEvents);
+  });
+}
 
 function addNewEvent() {
   const name = document.getElementById('event-name').value;
   const datetime = document.getElementById('event-date').value;
+  const notes = document.getElementById('event-notes').value;
   
   if (!name || !datetime) {
-    alert('Please fill in both fields');
+    alert('Please fill in both name and date fields');
     return;
   }
   
   const event = {
-    id: Date.now().toString(), // Add unique ID for each event
+    id: Date.now().toString(),
     name: name,
-    datetime: new Date(datetime).toISOString()
+    datetime: new Date(datetime).toISOString(),
+    notes: notes || '' // Include notes, empty string if none provided
   };
   
   chrome.storage.local.get(['events'], function(result) {
@@ -29,10 +57,191 @@ function addNewEvent() {
       loadEvents();
       document.getElementById('event-name').value = '';
       document.getElementById('event-date').value = '';
+      document.getElementById('event-notes').value = '';
     });
   });
 }
 
+function createEventElement(event) {
+  const div = document.createElement('div');
+  div.className = 'event-item';
+  
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'event-content';
+  
+  const nameSpan = document.createElement('span');
+  nameSpan.textContent = event.name;
+  
+  const countdownSpan = document.createElement('span');
+  countdownSpan.className = 'countdown';
+  countdownSpan.dataset.datetime = event.datetime;
+  
+  updateCountdown(countdownSpan);
+  
+  const buttonsDiv = document.createElement('div');
+  buttonsDiv.className = 'action-buttons';
+  
+  const notesButton = document.createElement('button');
+  notesButton.textContent = 'View/Edit Notes';
+  notesButton.className = 'edit-btn';
+  notesButton.onclick = () => toggleNotes(event, div);
+  
+  const editButton = document.createElement('button');
+  editButton.textContent = 'Edit';
+  editButton.className = 'edit-btn';
+  editButton.onclick = () => editEvent(event, div);
+  
+  const deleteButton = document.createElement('button');
+  deleteButton.textContent = 'Delete';
+  deleteButton.className = 'delete-btn';
+  deleteButton.onclick = () => removeEvent(event);
+  
+  contentDiv.appendChild(nameSpan);
+  contentDiv.appendChild(countdownSpan);
+  
+  buttonsDiv.appendChild(notesButton);
+  buttonsDiv.appendChild(editButton);
+  buttonsDiv.appendChild(deleteButton);
+  
+  div.appendChild(contentDiv);
+  div.appendChild(buttonsDiv);
+  
+  return div;
+}
+
+function toggleNotes(event, eventElement) {
+  // Close any open notes form first
+  const existingNotes = document.querySelector('.notes-form');
+  if (existingNotes) {
+    existingNotes.remove();
+  }
+  
+  // If we clicked the same event's notes button that was already open, just exit
+  if (existingNotes && existingNotes.dataset.eventId === event.id) {
+    return;
+  }
+  
+  const notesForm = document.createElement('div');
+  notesForm.className = 'notes-form edit-form';
+  notesForm.dataset.eventId = event.id;  // Add event ID to track which notes form is open
+  
+  const notesInput = document.createElement('textarea');
+  notesInput.className = 'form-control';
+  notesInput.value = event.notes || '';
+  notesInput.placeholder = 'Add your notes here...';
+  
+  const buttonsDiv = document.createElement('div');
+  buttonsDiv.className = 'edit-form-buttons';
+  
+  const saveButton = document.createElement('button');
+  saveButton.textContent = 'Save Notes';
+  saveButton.className = 'edit-btn';
+  saveButton.onclick = () => {
+    updateEventNotes(event.id, notesInput.value);
+    notesForm.remove();
+  };
+  
+  const cancelButton = document.createElement('button');
+  cancelButton.textContent = 'Cancel';
+  cancelButton.className = 'delete-btn';
+  cancelButton.onclick = () => notesForm.remove();
+  
+  buttonsDiv.appendChild(saveButton);
+  buttonsDiv.appendChild(cancelButton);
+  
+  notesForm.appendChild(notesInput);
+  notesForm.appendChild(buttonsDiv);
+  
+  eventElement.insertAdjacentElement('afterend', notesForm);
+}
+
+function updateEventNotes(eventId, newNotes) {
+  chrome.storage.local.get(['events'], function(result) {
+    const events = result.events || [];
+    const updatedEvents = events.map(event => {
+      if (event.id === eventId) {
+        return {
+          ...event,
+          notes: newNotes
+        };
+      }
+      return event;
+    });
+    
+    chrome.storage.local.set({ events: updatedEvents }, loadEvents);
+  });
+}
+
+function editEvent(event, eventElement) {
+  const existingForm = document.querySelector('.edit-form');
+  if (existingForm) {
+    existingForm.remove();
+  }
+  
+  const editForm = document.createElement('div');
+  editForm.className = 'edit-form';
+  
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.value = event.name;
+  nameInput.placeholder = 'Event Name';
+  
+  const dateInput = document.createElement('input');
+  dateInput.type = 'datetime-local';
+  
+  const eventDatetime = new Date(event.datetime);
+  const localDatetime = new Date(eventDatetime.getTime() - eventDatetime.getTimezoneOffset() * 60000);
+  const formattedDate = localDatetime.toISOString().slice(0, 16);
+  
+  dateInput.value = formattedDate;
+  
+  const buttonsDiv = document.createElement('div');
+  buttonsDiv.className = 'edit-form-buttons';
+  
+  const saveButton = document.createElement('button');
+  saveButton.textContent = 'Save';
+  saveButton.className = 'edit-btn';
+  saveButton.onclick = () => {
+    updateEvent(event.id, nameInput.value, dateInput.value, event.notes); // Keep existing notes
+    editForm.remove();
+  };
+  
+  const cancelButton = document.createElement('button');
+  cancelButton.textContent = 'Cancel';
+  cancelButton.className = 'delete-btn';
+  cancelButton.onclick = () => editForm.remove();
+  
+  buttonsDiv.appendChild(saveButton);
+  buttonsDiv.appendChild(cancelButton);
+  
+  editForm.appendChild(nameInput);
+  editForm.appendChild(dateInput);
+  editForm.appendChild(buttonsDiv);
+  
+  eventElement.insertAdjacentElement('afterend', editForm);
+}
+
+function updateEvent(eventId, newName, newDatetime, notes) {
+  chrome.storage.local.get(['events'], function(result) {
+    const events = result.events || [];
+    const updatedEvents = events.map(event => {
+      if (event.id === eventId) {
+        const newDatetimeISO = new Date(newDatetime).toISOString();
+        return {
+          ...event,
+          name: newName,
+          datetime: newDatetimeISO,
+          notes: notes  // Preserve existing notes
+        };
+      }
+      return event;
+    });
+    
+    chrome.storage.local.set({ events: updatedEvents }, loadEvents);
+  });
+}
+
+// Rest of the functions remain the same
 function loadEvents() {
   chrome.storage.local.get(['events'], function(result) {
     const events = result.events || [];
@@ -58,127 +267,6 @@ function displayEvents(events) {
     } else {
       upcomingContainer.appendChild(eventElement);
     }
-  });
-}
-
-function createEventElement(event) {
-  const div = document.createElement('div');
-  div.className = 'event-item';
-  
-  const contentDiv = document.createElement('div');
-  contentDiv.className = 'event-content';
-  
-  const nameSpan = document.createElement('span');
-  nameSpan.textContent = event.name;
-  
-  const countdownSpan = document.createElement('span');
-  countdownSpan.className = 'countdown';
-  countdownSpan.dataset.datetime = event.datetime;
-  
-  updateCountdown(countdownSpan);
-  
-  const buttonsDiv = document.createElement('div');
-  buttonsDiv.className = 'action-buttons';
-  
-  const editButton = document.createElement('button');
-  editButton.textContent = 'Edit';
-  editButton.className = 'edit-btn';
-  editButton.onclick = () => editEvent(event, div);
-  
-  const deleteButton = document.createElement('button');
-  deleteButton.textContent = 'Delete';
-  deleteButton.className = 'delete-btn';
-  deleteButton.onclick = () => removeEvent(event);
-  
-  contentDiv.appendChild(nameSpan);
-  contentDiv.appendChild(countdownSpan);
-  
-  buttonsDiv.appendChild(editButton);
-  buttonsDiv.appendChild(deleteButton);
-  
-  div.appendChild(contentDiv);
-  div.appendChild(buttonsDiv);
-  
-  return div;
-}
-function editEvent(event, eventElement) {
-  // Remove existing edit form if any
-  const existingForm = document.querySelector('.edit-form');
-  if (existingForm) {
-    existingForm.remove();
-  }
-  
-  const editForm = document.createElement('div');
-  editForm.className = 'edit-form';
-  
-  const nameInput = document.createElement('input');
-  nameInput.type = 'text';
-  nameInput.value = event.name;
-  nameInput.placeholder = 'Event Name';
-  
-  const dateInput = document.createElement('input');
-  dateInput.type = 'datetime-local';
-  
-  // Ensure the datetime is formatted correctly (YYYY-MM-DDTHH:MM)
-  const eventDatetime = new Date(event.datetime);
-  
-  // Adjust for local time zone
-  const localDatetime = new Date(eventDatetime.getTime() - eventDatetime.getTimezoneOffset() * 60000);
-  
-  // Format it to YYYY-MM-DDTHH:MM
-  const formattedDate = localDatetime.toISOString().slice(0, 16); // Remove seconds and milliseconds
-  
-  dateInput.value = formattedDate;
-
-  const buttonsDiv = document.createElement('div');
-  buttonsDiv.className = 'edit-form-buttons';
-  
-  const saveButton = document.createElement('button');
-  saveButton.textContent = 'Save';
-  saveButton.className = 'edit-btn';
-  saveButton.onclick = () => {
-    updateEvent(event.id, nameInput.value, dateInput.value);
-    editForm.remove();
-  };
-  
-  const cancelButton = document.createElement('button');
-  cancelButton.textContent = 'Cancel';
-  cancelButton.className = 'delete-btn';
-  cancelButton.onclick = () => editForm.remove();
-  
-  buttonsDiv.appendChild(saveButton);
-  buttonsDiv.appendChild(cancelButton);
-  
-  editForm.appendChild(nameInput);
-  editForm.appendChild(dateInput);
-  editForm.appendChild(buttonsDiv);
-  
-  eventElement.insertAdjacentElement('afterend', editForm);
-}
-function updateEvent(eventId, newName, newDatetime) {
-  chrome.storage.local.get(['events'], function(result) {
-    const events = result.events || [];
-    const updatedEvents = events.map(event => {
-      if (event.id === eventId) {
-        // Convert newDatetime from local to ISO format to avoid timezone discrepancies
-        const newDatetimeISO = new Date(newDatetime).toISOString();
-        
-        // If no change, return the event as is
-        if (event.name === newName && event.datetime === newDatetimeISO) {
-          return event;
-        }
-        
-        return {
-          ...event,
-          name: newName,
-          datetime: newDatetimeISO
-        };
-      }
-      return event;
-    });
-    
-    
-    chrome.storage.local.set({ events: updatedEvents }, loadEvents);
   });
 }
 
