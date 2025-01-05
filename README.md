@@ -27,4 +27,4 @@ All data is stored locally on your device using Chrome's storage API. We do not:
 We may update this privacy policy to reflect changes in our practices. Check this page periodically for updates.
 
 ## Contact
-For questions about this privacy policy, contact me at [falahsheikh.com](https://falahsheikh.com/)
+For questions about this privacy policy, contact me at [falahsheikh.com](https://falahsheikh.com/#contact)
