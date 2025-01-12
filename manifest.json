@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Event Countdown Timer",
+    "name": "Eventor",
     "version": "1.0",
     "description": "Track upcoming and past events with countdown timers",
     "permissions": ["storage"],

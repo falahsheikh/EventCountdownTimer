@@ -162,7 +162,7 @@
       display: flex;
       gap: 10px;
       align-items: center;
-      margin-top: 15px;
+      /* margin-top: 15px; */
     }
     .search-container input {
       padding: 8px; 
@@ -174,11 +174,79 @@
     #search-events {
       margin-top: 10px; 
     }
+ 
+
+  .section-container {
+  position: relative;
+  margin-top: 20px;
+}
+
+.box-title {
+  position: absolute;
+  top: -19px;
+  left: 15px;
+  padding: 0 10px;
+  font-size: 30px;
+  font-weight: bold;
+  color: #333;
+  z-index: 1;  /* This brings the text forward */
+  display: flex;
+  align-items: center;
+  gap: 8px; 
+  animation: glow 2s ease-in-out infinite;
+  margin-bottom: 10px;
+}
+.box-title img {
+  width: 30px;  /* Adjust size as needed */
+  height: 30px;  /* Adjust size as needed */
+}
+
+.add-event {
+  position: relative;
+  border: 1px solid #ddd;
+  margin-top: 20px;
+  padding: 15px;
+  background: #f5f5f5;  /* Keep the grey background */
+  border-radius: 4px;
+}
+
+.controls-container {
+  background: #f5f5f5;  /* Match the grey background */
+  padding: 15px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+
+@keyframes glow {
+  0% {
+    text-shadow: 0 0 5px rgba(250, 250, 6, 0.3),
+                 0 0 10px rgba(255, 255, 0, 0.2),
+                 0 0 15px rgba(229, 255, 0, 0.1);
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(255, 217, 0, 0.4),
+                 0 0 20px rgba(246, 255, 0, 0.3),
+                 0 0 30px rgba(255, 242, 0, 0.2);
+  }
+  100% {
+    text-shadow: 0 0 5px rgba(234, 255, 0, 0.3),
+                 0 0 10px rgba(255, 179, 0, 0.2),
+                 0 0 15px rgba(234, 255, 0, 0.1);
+  }
+}
+
+
   </style>
 </head>
 <body>
-  <div class="add-event">
-    <h2>Add New Event</h2>
+  <div class="section-container">
+    <div class="box-title">
+      <img src="icon128.png" alt="icon">
+      Eventor</div>
+    <div class="add-event">
+      <h3>Add New Event</h3>
     <input type="text" id="event-name" placeholder="Event Name">
     <input type="datetime-local" id="event-date">
     <div class="form-group">
@@ -188,6 +256,7 @@
       <button id="add-event" class="add-btn">Add Event</button>
       <input type="text" id="search-events" placeholder="Search events..." class="form-control">
     </div>
+  </div>
   </div>
 
   <h2>Upcoming Events</h2>
