@@ -1,9 +1,9 @@
-# Privacy Policy for Event Countdown Timer Chrome Extension
+# Privacy Policy for Eventor Chrome Extension
 
 Last Updated: January 4, 2025
 
 ## Overview
-Event Countdown Timer is a Chrome extension that helps users track countdown timers for important events. We are committed to protecting your privacy and being transparent about our data practices.
+Eventor is a Chrome extension that helps users track countdown timers for important events. We are committed to protecting your privacy and being transparent about our data practices.
 
 ## Data Collection and Storage
 Our extension collects and stores:
