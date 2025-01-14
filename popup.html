@@ -239,8 +239,8 @@
 /* Add these new styles to your existing CSS */
 .event-name {
   position: relative;
-  max-width: 150px; /* Adjust based on your needs */
-  overflow: hidden;
+  max-width: 190px; /* Adjust based on your needs */
+  /* overflow: hidden; */
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -261,6 +261,7 @@
   transform: translateX(-50%);
   opacity: 0;
   transition: opacity 0.3s;
+  z-index:1;
 }
 
 .tooltip::after {
