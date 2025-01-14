@@ -1,15 +1,20 @@
 {
-    "manifest_version": 3,
-    "name": "Eventor",
-    "version": "1.0",
-    "description": "Track upcoming and past events with countdown timers",
-    "permissions": ["storage"],
-    "action": {
-      "default_popup": "popup.html"
-    },
-    "icons": {
+  "manifest_version": 3,
+  "name": "Eventor",
+  "version": "1.0.3",
+  "description": "Track upcoming and past events with countdown timers - synced across devices",
+  "permissions": ["storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
       "16": "icon16.png",
       "48": "icon48.png",
       "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   }
-  }
+}

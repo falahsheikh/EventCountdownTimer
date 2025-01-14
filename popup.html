@@ -236,6 +236,57 @@
                  0 0 15px rgba(234, 255, 0, 0.1);
   }
 }
+/* Add these new styles to your existing CSS */
+.event-name {
+  position: relative;
+  max-width: 150px; /* Adjust based on your needs */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tooltip {
+  visibility: hidden;
+  position: absolute;
+  z-index: 1000;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.event-name:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.event-content {
+  flex-grow: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-right: 10px;
+  min-width: 0; /* This is important for flex items to respect overflow */
+}
 
 
   </style>

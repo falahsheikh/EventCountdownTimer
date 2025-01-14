@@ -3,26 +3,15 @@ document.addEventListener('DOMContentLoaded', function() {
   
   document.getElementById('add-event').addEventListener('click', addNewEvent);
   
-  // Update countdowns every second
-  setInterval(updateAllCountdowns, 1000);
-});
-document.addEventListener('DOMContentLoaded', function() {
-  loadEvents();
-  
-  document.getElementById('add-event').addEventListener('click', addNewEvent);
-  
-  // Add search functionality
   document.getElementById('search-events').addEventListener('input', function(e) {
     searchEvents(e.target.value);
   });
   
-  // Update countdowns every second
   setInterval(updateAllCountdowns, 1000);
 });
 
-// Add new search function
 function searchEvents(searchTerm) {
-  chrome.storage.local.get(['events'], function(result) {
+  chrome.storage.sync.get(['events'], function(result) {
     const events = result.events || [];
     const filteredEvents = events.filter(event => {
       const searchString = searchTerm.toLowerCase();
@@ -33,6 +22,10 @@ function searchEvents(searchTerm) {
   });
 }
 
+function truncateText(text, maxLength = 15) {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + '...';
+}
 function addNewEvent() {
   const name = document.getElementById('event-name').value;
   const datetime = document.getElementById('event-date').value;
@@ -45,21 +38,53 @@ function addNewEvent() {
   
   const event = {
     id: Date.now().toString(),
-    name: name,
+    name: truncateText(name), // Truncate the name before saving
+    fullName: name, // Store the full name for editing/details
     datetime: new Date(datetime).toISOString(),
-    notes: notes || '' // Include notes, empty string if none provided
+    notes: notes || ''
   };
   
-  chrome.storage.local.get(['events'], function(result) {
+  chrome.storage.sync.get(['events'], function(result) {
     const events = result.events || [];
     events.push(event);
-    chrome.storage.local.set({ events: events }, function() {
+    chrome.storage.sync.set({ events: events }, function() {
       loadEvents();
       document.getElementById('event-name').value = '';
       document.getElementById('event-date').value = '';
       document.getElementById('event-notes').value = '';
     });
   });
+}
+
+function createTimeDifferenceElement(currentEvent, nextEvent) {
+  const div = document.createElement('div');
+  div.className = 'time-difference';
+  div.style.padding = '8px';
+  div.style.marginLeft = '20px';
+  div.style.color = '#666';
+  div.style.fontSize = '0.9em';
+  div.style.fontStyle = 'italic';
+  
+  const currentDate = new Date(currentEvent.datetime);
+  const nextDate = new Date(nextEvent.datetime);
+  const diffMs = Math.abs(nextDate - currentDate);
+  
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  
+  let diffText = '➔ Time until next event: ';
+  if (days > 0) {
+    diffText += `${days} day${days > 1 ? 's' : ''}`;
+    if (hours > 0) diffText += ` and ${hours} hour${hours > 1 ? 's' : ''}`;
+  } else if (hours > 0) {
+    diffText += `${hours} hour${hours > 1 ? 's' : ''}`;
+  } else {
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    diffText += `${minutes} minute${minutes > 1 ? 's' : ''}`;
+  }
+  
+  div.textContent = diffText;
+  return div;
 }
 
 function createEventElement(event) {
@@ -70,7 +95,16 @@ function createEventElement(event) {
   contentDiv.className = 'event-content';
   
   const nameSpan = document.createElement('span');
+  nameSpan.className = 'event-name';
   nameSpan.textContent = event.name;
+  
+  // Create tooltip only if the name is truncated
+  if (event.fullName && event.fullName !== event.name) {
+    const tooltip = document.createElement('span');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = event.fullName;
+    nameSpan.appendChild(tooltip);
+  }
   
   const countdownSpan = document.createElement('span');
   countdownSpan.className = 'countdown';
@@ -82,7 +116,7 @@ function createEventElement(event) {
   buttonsDiv.className = 'action-buttons';
   
   const notesButton = document.createElement('button');
-  notesButton.textContent = 'View/Edit Notes';
+  notesButton.textContent = 'Notes';
   notesButton.className = 'notes-btn';
   notesButton.onclick = () => toggleNotes(event, div);
   
@@ -110,20 +144,18 @@ function createEventElement(event) {
 }
 
 function toggleNotes(event, eventElement) {
-  // Close any open notes form first
   const existingNotes = document.querySelector('.notes-form');
   if (existingNotes) {
     existingNotes.remove();
   }
   
-  // If we clicked the same event's notes button that was already open, just exit
   if (existingNotes && existingNotes.dataset.eventId === event.id) {
     return;
   }
   
   const notesForm = document.createElement('div');
   notesForm.className = 'notes-form edit-form';
-  notesForm.dataset.eventId = event.id;  // Add event ID to track which notes form is open
+  notesForm.dataset.eventId = event.id;
   
   const notesInput = document.createElement('textarea');
   notesInput.className = 'form-control';
@@ -156,7 +188,7 @@ function toggleNotes(event, eventElement) {
 }
 
 function updateEventNotes(eventId, newNotes) {
-  chrome.storage.local.get(['events'], function(result) {
+  chrome.storage.sync.get(['events'], function(result) {
     const events = result.events || [];
     const updatedEvents = events.map(event => {
       if (event.id === eventId) {
@@ -168,7 +200,7 @@ function updateEventNotes(eventId, newNotes) {
       return event;
     });
     
-    chrome.storage.local.set({ events: updatedEvents }, loadEvents);
+    chrome.storage.sync.set({ events: updatedEvents }, loadEvents);
   });
 }
 
@@ -183,7 +215,7 @@ function editEvent(event, eventElement) {
   
   const nameInput = document.createElement('input');
   nameInput.type = 'text';
-  nameInput.value = event.name;
+  nameInput.value = event.fullName || event.name; // Use full name for editing
   nameInput.placeholder = 'Event Name';
   
   const dateInput = document.createElement('input');
@@ -202,7 +234,7 @@ function editEvent(event, eventElement) {
   saveButton.textContent = 'Save';
   saveButton.className = 'edit-btn';
   saveButton.onclick = () => {
-    updateEvent(event.id, nameInput.value, dateInput.value, event.notes); // Keep existing notes
+    updateEvent(event.id, nameInput.value, dateInput.value, event.notes);
     editForm.remove();
   };
   
@@ -222,28 +254,28 @@ function editEvent(event, eventElement) {
 }
 
 function updateEvent(eventId, newName, newDatetime, notes) {
-  chrome.storage.local.get(['events'], function(result) {
+  chrome.storage.sync.get(['events'], function(result) {
     const events = result.events || [];
     const updatedEvents = events.map(event => {
       if (event.id === eventId) {
         const newDatetimeISO = new Date(newDatetime).toISOString();
         return {
           ...event,
-          name: newName,
+          name: truncateText(newName), // Truncate the displayed name
+          fullName: newName, // Store the full name
           datetime: newDatetimeISO,
-          notes: notes  // Preserve existing notes
+          notes: notes
         };
       }
       return event;
     });
     
-    chrome.storage.local.set({ events: updatedEvents }, loadEvents);
+    chrome.storage.sync.set({ events: updatedEvents }, loadEvents);
   });
 }
 
-// Rest of the functions remain the same
 function loadEvents() {
-  chrome.storage.local.get(['events'], function(result) {
+  chrome.storage.sync.get(['events'], function(result) {
     const events = result.events || [];
     displayEvents(events);
   });
@@ -258,15 +290,25 @@ function displayEvents(events) {
   
   events.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
   
-  events.forEach(event => {
+  const now = new Date();
+  const upcomingEvents = events.filter(event => new Date(event.datetime) >= now);
+  const pastEvents = events.filter(event => new Date(event.datetime) < now);
+  
+  // Display upcoming events with time differences
+  upcomingEvents.forEach((event, index) => {
     const eventElement = createEventElement(event);
-    const isPast = new Date(event.datetime) < new Date();
+    upcomingContainer.appendChild(eventElement);
     
-    if (isPast) {
-      pastContainer.appendChild(eventElement);
-    } else {
-      upcomingContainer.appendChild(eventElement);
+    if (index < upcomingEvents.length - 1) {
+      const timeDiffElement = createTimeDifferenceElement(event, upcomingEvents[index + 1]);
+      upcomingContainer.appendChild(timeDiffElement);
     }
+  });
+  
+  // Display past events
+  pastEvents.forEach(event => {
+    const eventElement = createEventElement(event);
+    pastContainer.appendChild(eventElement);
   });
 }
 
@@ -319,10 +361,10 @@ function updateCountdown(element) {
 
 function removeEvent(eventToRemove) {
   if (confirm('Are you sure you want to delete this event?')) {
-    chrome.storage.local.get(['events'], function(result) {
+    chrome.storage.sync.get(['events'], function(result) {
       const events = result.events || [];
       const updatedEvents = events.filter(event => event.id !== eventToRemove.id);
-      chrome.storage.local.set({ events: updatedEvents }, loadEvents);
+      chrome.storage.sync.set({ events: updatedEvents }, loadEvents);
     });
   }
 }
