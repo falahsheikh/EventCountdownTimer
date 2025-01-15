@@ -102,8 +102,11 @@ function createEventElement(event) {
   if (event.fullName && event.fullName !== event.name) {
     const tooltip = document.createElement('span');
     tooltip.className = 'tooltip';
-    tooltip.textContent = event.fullName;
-    nameSpan.appendChild(tooltip);
+    const tooltipContent = document.createElement('span');
+    tooltipContent.className = 'tooltip-content';
+    tooltipContent.textContent = event.fullName;
+    tooltip.appendChild(tooltipContent);
+    nameSpan.appendChild(tooltip);    
   }
   
   const countdownSpan = document.createElement('span');

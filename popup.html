@@ -249,19 +249,41 @@
   visibility: hidden;
   position: absolute;
   z-index: 1000;
-  background-color: #333;
+  background-color: #333333c0;
   color: white;
   text-align: center;
   padding: 5px 10px;
   border-radius: 4px;
   font-size: 12px;
   white-space: nowrap;
+  overflow: hidden; /* Hide overflowing text */
+  max-width: 100px; /* Fixed width for the tooltip */
   top: -30px;
   left: 50%;
   transform: translateX(-50%);
   opacity: 0;
   transition: opacity 0.3s;
-  z-index:1;
+}
+
+
+.tooltip-content {
+  display: inline-block;
+  padding-left: 100%;
+  animation: scroll-left var(--scroll-speed, 4s) linear infinite;
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes scroll-right {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(0); }
+}
+
+.tooltip[data-scroll-direction="right"] .tooltip-content {
+  animation: scroll-right var(--scroll-speed, 5s) linear infinite;
 }
 
 .tooltip::after {
@@ -272,13 +294,15 @@
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: #333 transparent transparent transparent;
+  border-color: #333333 transparent transparent transparent;
 }
+
 
 .event-name:hover .tooltip {
   visibility: visible;
   opacity: 1;
 }
+
 
 .event-content {
   flex-grow: 1;
@@ -286,10 +310,8 @@
   justify-content: space-between;
   align-items: center;
   margin-right: 10px;
-  min-width: 0; /* This is important for flex items to respect overflow */
+  min-width: 0;
 }
-
-
   </style>
 </head>
 <body>
